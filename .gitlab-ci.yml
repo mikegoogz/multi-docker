@@ -1,0 +1,44 @@
+image: docker:stable
+
+stages:
+  - test
+  - build and push
+
+testing_app:
+  stage: test
+  image: docker:latest
+  variables:
+    DOCKER_HOST: tcp://localhost:2375
+  services:
+    - docker:18.05-dind
+  before_script:
+    - docker build -t mikegoogz/react-test -f ./client/Dockerfile.dev ./client
+  script:
+    - docker run mikegoogz/react-test npm test -- --coverage
+    - sleep 3
+    - echo "We did it! test run successfully "
+
+image_build:
+  stage: build and push
+  image: docker:latest
+  variables:
+    DOCKER_HOST: tcp://localhost:2375
+  services:
+    - docker:18.05-dind
+  script:
+    - docker build -t mikegoogz/multi-client ./client
+    - docker build -t mikegoogz/multi-nginx ./nginx
+    - docker build -t mikegoogz/multi-server ./server
+    - docker build -t mikegoogz/multi-worker ./worker
+
+    - echo "Build went successfully "
+
+    - docker info
+    - docker login -u "${DOCKER_ID}" -p "${DOCKER_PASSWORD}"
+
+    - docker push mikegoogz/multi-client
+    - docker push mikegoogz/multi-nginx
+    - docker push mikegoogz/multi-server
+    - docker push mikegoogz/multi-worker
+
+    - echo "Push to docker hub went successfully "
