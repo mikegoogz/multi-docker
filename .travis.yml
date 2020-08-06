@@ -1,0 +1,22 @@
+sudo: required
+services:
+  - docker
+
+before_install:
+  - docker build -t mikegoogz/react-test -f ./client/Dockerfile.dev ./client
+
+script:
+  - docker run mikegoogz/react-test npm test -- --coverage
+
+after_success:
+  - docker build -t mikegoogz/multi-client ./client
+  - docker build -t mikegoogz/multi-nginx ./nginx
+  - docker build -t mikegoogz/multi-server ./server
+  - docker build -t mikegoogz/multi-worker ./worker
+
+  - echo "$DOCKER_PASSWORD" | docker login -u "$DOCKER_ID" --password-stdin
+
+  - docker push mikegoogz/multi-client
+  - docker push mikegoogz/multi-nginx
+  - docker push mikegoogz/multi-server
+  - docker push mikegoogz/multi-worker
