@@ -7,8 +7,6 @@ stages:
 testing_app:
   stage: test
   image: docker:latest
-  variables:
-    DOCKER_HOST: tcp://localhost:2375
   services:
     - docker:18.05-dind
   before_script:
@@ -21,8 +19,6 @@ testing_app:
 image_build:
   stage: build and push
   image: docker:latest
-  variables:
-    DOCKER_HOST: tcp://localhost:2375
   services:
     - docker:18.05-dind
   script:
