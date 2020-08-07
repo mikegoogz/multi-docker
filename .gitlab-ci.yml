@@ -29,8 +29,7 @@ image_build:
 
     - echo "Build went successfully "
 
-    - docker info
-    - docker login -u "${DOCKER_ID}" -p "${DOCKER_PASSWORD}"
+    - echo "$DOCKER_PASSWORD" | docker login -u "$DOCKER_ID" --password-stdin
 
     - docker push mikegoogz/multi-client
     - docker push mikegoogz/multi-nginx
